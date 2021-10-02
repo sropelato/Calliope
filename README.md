@@ -1,6 +1,6 @@
 # Calliope mini projects
 
-A collection of projects for the [https://calliope.cc](Calliope mini)
+A collection of projects for the [Calliope mini](https://calliope.cc).
 
 
 ### MorseCode.js
