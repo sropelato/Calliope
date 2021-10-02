@@ -1,3 +1,16 @@
+/**
+ * Morse Code example for the Calliope mini
+ * October 2021, Sandro Ropelato
+ * https://github.com/sropelato/Calliope
+ * 
+ * The MorseCode project is intended to be run on two Calliope minis. Each mini
+ * can be used as a sender or as a receiver. Use the B button to switch between
+ * receive mode (green led) and send mode (red led). When in send mode, use the
+ * A button to enter a morse code (see table below). If a valid code has been
+ * entered, its corresponding character is displayed on the display of the
+ * sender and transmitted to all nearby minis in receive mode.
+ */
+
 // button states
 let buttonA = false;
 let oldButtonA = false;
@@ -12,22 +25,22 @@ let buttonAReleaseTime = -1
 let dotDashThreshold = 150
 let intraCharacterGap = 250
 
-// frequency in Hz for morse code sounds
+// frequency in Hz for morse code sound
 let audioFrequency = 500
 
-// code buffer
+// buffer for code being entered
 let code = ''
 
-// display buffer for received characters
-let receivedCodeBuffer:string[] = []
+// buffer for received codes
+let receivedCodeBuffer: string[] = []
 
 // diplay timing
 let displayTimePerSymbol = 1000
 let displayTimeBetweenSymbols = 200
 let displayTimeTurnOff = 3000
 
-// store if screen is on (is displaying a symbol)
-// and time when the symbol was displayed
+// store if screen is on (is displaying a character)
+// and time since when the character was displayed
 let screenOn = false
 let screenOnTime = -1
 
@@ -38,7 +51,7 @@ enum Mode {
 }
 let mode = Mode.RECEIVE;
 
-// dictionary mapping morse code to symbol
+// dictionary mapping morse code to character
 let morseCode: { [code: string]: string } = {};
 morseCode['.-'] = 'A'
 morseCode['-...'] = 'B'
@@ -83,15 +96,16 @@ radio.setGroup(94)
 // set to receive mode
 setMode(Mode.RECEIVE)
 
+// main loop
 basic.forever(function () {
 
-    // check state of button B
+    // check state of button B (mode switch)
     if (input.buttonIsPressed(Button.B))
         buttonB = true
     else
         buttonB = false
 
-    // button B was pressed in this frame --> change mode
+    // button B was pressed in this frame => change mode
     if (buttonB && !oldButtonB) {
         if (mode == Mode.RECEIVE)
             setMode(Mode.SEND)
@@ -131,6 +145,7 @@ function setMode(newMode: Mode) {
 
     if (mode == Mode.RECEIVE) {
         // RECEIVE mode
+
         // define function to react to received code
         radio.onReceivedString(function (receivedCode: string) {
             receivedCodeBuffer.push(receivedCode)
@@ -144,6 +159,7 @@ function setMode(newMode: Mode) {
     }
     else {
         // SEND mode
+
         // clear function to process received code
         radio.onReceivedString(null)
 
@@ -155,7 +171,7 @@ function setMode(newMode: Mode) {
     }
 }
 
-// handle receiving mode
+// handle RECEIVE mode
 function receive() {
     if (receivedCodeBuffer.length > 0) {
 
@@ -194,7 +210,7 @@ function receive() {
     }
 }
 
-// handle sending mode
+// handle SEND mode
 function send() {
     // check state of button A
     if (input.buttonIsPressed(Button.A)) {
@@ -205,22 +221,22 @@ function send() {
 
     // button A was pressed in this frame
     if (buttonA && !oldButtonA) {
+        // store time when button A was pressed
         buttonAPressTime = control.millis()
 
-        // playing tone
-        //control.inBackground(function () {
+        // play tone
         music.ringTone(audioFrequency)
-        //})
     }
 
     // button A was released in this frame
     if (!buttonA && oldButtonA) {
+        // store time when button A was released
         buttonAReleaseTime = control.millis()
 
         // stop tone
         music.rest(1)
 
-        // determine whether we register a dot or a dash
+        // determine whether we entered a dot or a dash
         if (buttonAReleaseTime - buttonAPressTime < dotDashThreshold) {
             code += '.'
         } else {
@@ -248,8 +264,8 @@ function send() {
     }
 }
 
-// function to display a character on the 5x5 display
-// if a character is already being displayed, clear screen before displaying
+// function to display a character on the 5 x 5 display
+// if a character is already being displayed, clear screen before displayin
 // the new character
 function displayCharacter(character: string) {
     // display character in background so the main loop is not blocked
@@ -269,7 +285,7 @@ function displayCharacter(character: string) {
 }
 
 // function to convert morse code into a displayable character
-// if code is not a valid morse code, we return a '?'
+// if code is not a valid morse code, this function returns a '?'
 function parseMorseCode(code: string) {
     let character = morseCode[code]
     if (character !== undefined)
