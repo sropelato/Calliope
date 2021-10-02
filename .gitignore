@@ -1,0 +1,7 @@
+# OS generated files
+.DS_Store
+._*
+Thumbs.db
+
+# Visual Studio Code files
+.vscode
