@@ -5,3 +5,6 @@ Thumbs.db
 
 # Visual Studio Code files
 .vscode
+
+# Compiled .hex files
+*.hex
