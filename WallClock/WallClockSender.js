@@ -21,6 +21,8 @@ let oldHour = -1
 let oldMinute = -1
 let oldSecond = -1
 
+// when second greater or equal to the given threshold, turn the led at
+// coordinates ledX / ledY on, otherwise turn it off
 function displaySeconds(ledX: number, ledY: number, second: number, threshold: number) {
     if (second >= threshold)
         led.plot(ledX, ledY)
@@ -28,6 +30,7 @@ function displaySeconds(ledX: number, ledY: number, second: number, threshold: n
         led.unplot(ledX, ledY)
 }
 
+// receive data from serial
 serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
     let receivedData = serial.readUntil(serial.delimiters(Delimiters.NewLine));
     if (receivedData.length == 8) {
@@ -35,8 +38,9 @@ serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         let minute = parseInt(receivedData.substr(3, 5));
         let second = parseInt(receivedData.substr(6, 8));
 
-        // retransmit if hour or minute has changed
+        // update if hour, minute or second has changed
         if (hour != oldHour || minute != oldMinute || second != oldSecond) {
+            // send time as string (hh:mm) via radio
             oldHour = hour
             oldMinute = minute
             oldSecond = second
@@ -49,28 +53,28 @@ serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
                 sendData += '0'
             sendData += minute
             radio.sendString(sendData)
-        }
 
-        // display second on display
-        if (second % 2 == 0)
-            led.plot(2, 2)
-        else
-            led.unplot(2, 2)
-        displaySeconds(2, 0, second, 60 / 16 * 0)
-        displaySeconds(3, 0, second, 60 / 16 * 1)
-        displaySeconds(4, 0, second, 60 / 16 * 2)
-        displaySeconds(4, 1, second, 60 / 16 * 3)
-        displaySeconds(4, 2, second, 60 / 16 * 4)
-        displaySeconds(4, 3, second, 60 / 16 * 5)
-        displaySeconds(4, 4, second, 60 / 16 * 6)
-        displaySeconds(3, 4, second, 60 / 16 * 7)
-        displaySeconds(2, 4, second, 60 / 16 * 8)
-        displaySeconds(1, 4, second, 60 / 16 * 9)
-        displaySeconds(0, 4, second, 60 / 16 * 10)
-        displaySeconds(0, 3, second, 60 / 16 * 11)
-        displaySeconds(0, 2, second, 60 / 16 * 12)
-        displaySeconds(0, 1, second, 60 / 16 * 13)
-        displaySeconds(0, 0, second, 60 / 16 * 14)
-        displaySeconds(1, 0, second, 60 / 16 * 15)
+            // display seconds on display
+            if (second % 2 == 0)
+                led.plot(2, 2)
+            else
+                led.unplot(2, 2)
+            displaySeconds(2, 0, second, 60 / 16 * 0)
+            displaySeconds(3, 0, second, 60 / 16 * 1)
+            displaySeconds(4, 0, second, 60 / 16 * 2)
+            displaySeconds(4, 1, second, 60 / 16 * 3)
+            displaySeconds(4, 2, second, 60 / 16 * 4)
+            displaySeconds(4, 3, second, 60 / 16 * 5)
+            displaySeconds(4, 4, second, 60 / 16 * 6)
+            displaySeconds(3, 4, second, 60 / 16 * 7)
+            displaySeconds(2, 4, second, 60 / 16 * 8)
+            displaySeconds(1, 4, second, 60 / 16 * 9)
+            displaySeconds(0, 4, second, 60 / 16 * 10)
+            displaySeconds(0, 3, second, 60 / 16 * 11)
+            displaySeconds(0, 2, second, 60 / 16 * 12)
+            displaySeconds(0, 1, second, 60 / 16 * 13)
+            displaySeconds(0, 0, second, 60 / 16 * 14)
+            displaySeconds(1, 0, second, 60 / 16 * 15)
+        }
     }
 });

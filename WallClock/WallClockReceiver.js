@@ -10,6 +10,7 @@
 // set radio group
 radio.setGroup(93)
 
+// variables
 let charIndex = 0
 let maxMsgLength = 5
 let ledOn = false
@@ -23,6 +24,7 @@ let displayedCharacter = '-'
 let error = false
 let oldError = false
 
+// receive radio message and store selected character to be displayed
 radio.onReceivedString(function (receivedString: string) {
     if (!disableRadio) {
         if (receivedString.length >= charIndex + 1) {
@@ -33,6 +35,7 @@ radio.onReceivedString(function (receivedString: string) {
     }
 })
 
+// increase character index when button A is pressed
 input.onButtonEvent(Button.B, input.buttonEventClick(), function () {
     disableRadio = true
     lastDataReceived = -10000
@@ -42,13 +45,14 @@ input.onButtonEvent(Button.B, input.buttonEventClick(), function () {
     basic.clearScreen()
     basic.pause(200)
     charIndex = (charIndex + 1) % (maxMsgLength)
-    basic.showNumber(charIndex)
+    showCharacter(charIndex.toString())
     basic.pause(500)
     basic.clearScreen()
     basic.pause(200)
     disableRadio = false
 })
 
+// decrease character index when button A is pressed
 input.onButtonEvent(Button.A, input.buttonEventClick(), function () {
     disableRadio = true
     lastDataReceived = -10000
@@ -58,7 +62,7 @@ input.onButtonEvent(Button.A, input.buttonEventClick(), function () {
     charIndex = (charIndex - 1 + maxMsgLength) % (maxMsgLength)
     music.playTone(Note.G5, 50)
     music.playTone(Note.C5, 100)
-    basic.showNumber(charIndex)
+    showCharacter(charIndex.toString())
     basic.pause(500)
     basic.clearScreen()
     basic.pause(200)
@@ -78,9 +82,10 @@ basic.forever(function () {
         basic.turnRgbLedOff()
     oldError = error
 
+    // display character (toggle on/off if blink is true)
     displayOn = !blink || Math.round(control.millis() / 1000) % 2 == 0
     if (currentCharacter != displayedCharacter || (displayOn && !oldDisplayOn)) {
-        basic.showString(currentCharacter)
+        showCharacter(currentCharacter)
         displayedCharacter = currentCharacter
     }
     else if (!displayOn && oldDisplayOn)
@@ -89,3 +94,110 @@ basic.forever(function () {
 
     basic.pause(20)
 })
+
+// draw custom characters
+function showCharacter(character: string) {
+    switch (character) {
+        case '0':
+            basic.showLeds(`
+                # # # # #
+                # . . . #
+                # . . . #
+                # . . . #
+                # # # # #
+                `)
+            break;
+        case '1':
+            basic.showLeds(`
+                . . # . .
+                . . # . .
+                . . # . .
+                . . # . .
+                . . # . .
+                `)
+            break;
+        case '2':
+            basic.showLeds(`
+                # # # # #
+                . . . . #
+                # # # # #
+                # . . . .
+                # # # # #
+                `)
+            break;
+        case '3':
+            basic.showLeds(`
+                # # # # #
+                . . . . #
+                . # # # #
+                . . . . #
+                # # # # #
+                `)
+            break;
+        case '4':
+            basic.showLeds(`
+                # . . . #
+                # . . . #
+                # # # # #
+                . . . . #
+                . . . . #
+                `)
+            break;
+        case '5':
+            basic.showLeds(`
+                # # # # #
+                # . . . .
+                # # # # #
+                . . . . #
+                # # # # #
+                `)
+            break;
+        case '6':
+            basic.showLeds(`
+                # . . . .
+                # . . . .
+                # # # # #
+                # . . . #
+                # # # # #
+                `)
+            break;
+        case '7':
+            basic.showLeds(`
+                # # # # #
+                . . . . #
+                . . . . #
+                . . . . #
+                . . . . #
+                `)
+            break;
+        case '8':
+            basic.showLeds(`
+                # # # # #
+                # . . . #
+                # # # # #
+                # . . . #
+                # # # # #
+                `)
+            break;
+        case '9':
+            basic.showLeds(`
+                # # # # #
+                # . . . #
+                # # # # #
+                . . . . #
+                . . . . #
+                `)
+            break;
+        case ':':
+            basic.showLeds(`
+                . . . . .
+                . . # . .
+                . . . . .
+                . . # . .
+                . . . . .
+                `)
+            break;
+        default:
+            basic.showString(currentCharacter)
+    }
+}
