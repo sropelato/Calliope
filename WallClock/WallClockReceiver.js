@@ -15,11 +15,19 @@ let maxMsgLength = 5
 let ledOn = false
 let disableRadio = false
 let lastDataReceived = -10000
+let blink = true
+let displayOn = false
+let oldDisplayOn = false
+let currentCharacter = '-'
+let displayedCharacter = '-'
+let error = false
+let oldError = false
 
 radio.onReceivedString(function (receivedString: string) {
     if (!disableRadio) {
         if (receivedString.length >= charIndex + 1) {
-            basic.showString(receivedString.charAt(charIndex))
+            currentCharacter = receivedString.charAt(charIndex)
+            blink = currentCharacter == ':'
         }
         lastDataReceived = control.millis()
     }
@@ -59,9 +67,25 @@ input.onButtonEvent(Button.A, input.buttonEventClick(), function () {
 
 // main loop
 basic.forever(function () {
+    // turn on red led if no data received for more than 5 seconds
     if (control.millis() > lastDataReceived + 5000)
         basic.setLedColor(Colors.Red)
     else
         basic.turnRgbLedOff()
-    basic.pause(1000)
+    if (error && !oldError)
+        basic.setLedColor(Colors.Red)
+    else if (!error && oldError)
+        basic.turnRgbLedOff()
+    oldError = error
+
+    displayOn = !blink || Math.round(control.millis() / 1000) % 2 == 0
+    if (currentCharacter != displayedCharacter || (displayOn && !oldDisplayOn)) {
+        basic.showString(currentCharacter)
+        displayedCharacter = currentCharacter
+    }
+    else if (!displayOn && oldDisplayOn)
+        basic.clearScreen()
+    oldDisplayOn = displayOn
+
+    basic.pause(20)
 })
